@@ -4,7 +4,6 @@ import random
 import asyncio
 import sqlite3
 import os
-import time
 
 # Configura los intents del bot
 intents = discord.Intents.default()
@@ -392,7 +391,6 @@ async def on_message(message):
         for server_active_hunt_key in hunts[server].keys():
             if server_active_hunt_key[0] == author:
                 await message.add_reaction(hunts[server][server_active_hunt_key])
-            time.sleep(0.5)
 
     await bot.process_commands(message)
 
