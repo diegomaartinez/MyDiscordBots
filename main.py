@@ -92,20 +92,30 @@ async def show_stats(interaction: discord.Interaction):
 
 @bot.tree.command(name='diegolb', description='Muestra el ranking de los mejores jugadores del ahorcado')
 async def show_top_players(interaction: discord.Interaction):
-    print('a')
-    conexion = sqlite3.connect('game_stats.db')
+    conexion = sqlite3.connect(DB_NAME)
     cursor = conexion.cursor()
 
+    # Obtener el top 10 de jugadores
     cursor.execute('''SELECT user_name, victories, games_played 
-                      FROM hanged_stats 
-                      ORDER BY victories DESC 
-                      LIMIT 20''')
-    results = cursor.fetchall()
+                      FROM hanged_stats
+                      WHERE server_id == ?
+                      ORDER BY victories DESC
+                      LIMIT 10''', (interaction.guild.id,))
+    top_10_results = cursor.fetchall()
+
+    # Obtener la posición del usuario en el ranking
+    cursor.execute('''SELECT COUNT(*) + 1 AS rank 
+                      FROM hanged_stats
+                      WHERE server_id = ? AND victories > (SELECT victories FROM hanged_stats WHERE main_id = ?)''',
+                   (interaction.guild.id, f"{interaction.guild.id}_{interaction.user.id}"))
+    user_rank = cursor.fetchone()[0]
+
+    # Cerrar la conexión a la base de datos
     conexion.close()
 
-    if results:
-        embed = discord.Embed(title="Top 20 Jugadores del Ahorcado", color=discord.Color.gold())
-        for index, (user_name, victories, games_played) in enumerate(results, start=1):
+    if top_10_results:
+        embed = discord.Embed(title="Top 10 Jugadores del Ahorcado\nen este servidor", color=discord.Color.gold())
+        for index, (user_name, victories, games_played) in enumerate(top_10_results, start=1):
             win_percentage = (victories / games_played) * 100 if games_played > 0 else 0
             embed.add_field(
                 name=f"{index}. {user_name}",
@@ -113,9 +123,17 @@ async def show_top_players(interaction: discord.Interaction):
                 inline=False
             )
 
+        # Añadir la posición del usuario
+        embed.add_field(
+            name="Tu posición en el ranking:",
+            value=f"{user_rank}",
+            inline=False
+        )
+
         await interaction.response.send_message(embed=embed)
     else:
         await interaction.response.send_message("Aún no hay jugadores en el ranking de este servidor.")
+
 
 
 async def get_reactions(msg, situation):
@@ -319,8 +337,6 @@ async def guess(interaction: discord.Interaction, limit: int = 50):
 
 
 hunts = {}
-
-
 @bot.tree.command(name='diegohunt', description='Persigue a un usuario con un emoticono!')
 async def hunt(interaction: discord.Interaction, emoji: str, user: discord.Member):
     prey, hunter, server = user, interaction.user, interaction.guild
@@ -346,9 +362,15 @@ async def stop_hunt(interaction: discord.Interaction, user: discord.Member):
         await interaction.response.send_message("Todas las cazas han sido detenidas en este servidor.")
         return
 
+    if user.guild_permissions.administrator:
+        for server_active_hunts in hunts[server.id].keys():
+            if server_active_hunts[0] == prey.id:
+              del hunts[server.id][server_active_hunts]
+              await interaction.response.send_message(f"Dejaré de perseguir a {prey.mention}.")
+
     # One hunter deletes the hunt over a user in a server
     if key in hunts[server.id].keys():
-        del hunts[server.id]
+        del hunts[server.id][key]
         await interaction.response.send_message(f"La caza sobre {user.mention} ha sido detenida en este servidor.")
     else:
         await interaction.response.send_message(
