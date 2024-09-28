@@ -329,13 +329,10 @@ async def hunt(interaction: discord.Interaction, emoji: str, user: discord.Membe
     if server.id not in hunts.keys():
         hunts[server.id] = {}
 
-    if hunter.id != prey.id:
-        hunts[server.id][key] = emoji
-        await interaction.response.send_message(
-            f"La caza ha comenzado 😈. \nAhora estaré siguiendo a {prey.mention} con el emoji:\n# {emoji}")
-    else:
-        await interaction.response.send_message(f"¿Por qué querrías cazarte a tí mismo {user.mention}? 🤡")
-
+    hunts[server.id][key] = emoji
+    await interaction.response.send_message(
+        f"La caza ha comenzado 😈. \nAhora estaré siguiendo a {prey.mention} con el emoji:\n# {emoji}"
+    )
 
 @bot.tree.command(name='diegostophunt', description='Detiene la caza activa sobre un usuario')
 async def stop_hunt(interaction: discord.Interaction, user: discord.Member):
