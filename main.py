@@ -37,7 +37,7 @@ def setup_database():
     conexion.close()
 
 
-# Actualiza las estadísticas del usuario
+# Actualiza las estadisticas del usuario
 def update_stats(server_id, user_id, user_name, won):
     main_id = f"{server_id}_{user_id}"
 
@@ -60,8 +60,8 @@ def update_stats(server_id, user_id, user_name, won):
     conexion.close()
 
 
-# Muestra las estadísticas del usuario
-@bot.tree.command(name='diegome', description='Muestra tus estadísticas en el juego del ahorcado')
+# Muestra las estadisticas del usuario
+@bot.tree.command(name='diegome', description='Muestra tus estadisticas en el juego del ahorcado')
 async def show_stats(interaction: discord.Interaction):
     main_id = f"{interaction.guild.id}_{interaction.user.id}"
 
@@ -78,7 +78,7 @@ async def show_stats(interaction: discord.Interaction):
         win_percentage = (victories / games_played) * 100 if games_played > 0 else 0
         # avg_attempts = games_played / victories if victories > 0 else 0
 
-        embed = discord.Embed(title="Estadísticas del Ahorcado", color=discord.Color.blue())
+        embed = discord.Embed(title="Estadisticas del Ahorcado", color=discord.Color.blue())
         embed.set_author(name=interaction.user.display_name)
         embed.add_field(name="Victorias", value=victories, inline=True)
         embed.add_field(name="Partidas jugadas", value=games_played, inline=True)
@@ -87,7 +87,7 @@ async def show_stats(interaction: discord.Interaction):
 
         await interaction.response.send_message(embed=embed)
     else:
-        await interaction.response.send_message("Aún no has jugado ninguna partida en este servidor.")
+        await interaction.response.send_message("Aun no has jugado ninguna partida en este servidor.")
 
 
 @bot.tree.command(name='diegolb', description='Muestra el ranking de los mejores jugadores del ahorcado')
@@ -96,43 +96,43 @@ async def show_top_players(interaction: discord.Interaction):
     cursor = conexion.cursor()
 
     # Obtener el top 10 de jugadores
-    cursor.execute('''SELECT user_name, victories, games_played 
+    cursor.execute('''SELECT user_name, victories, games_played, ((victories*1.0)/games_played) AS win_ratio
                       FROM hanged_stats
                       WHERE server_id == ?
-                      ORDER BY victories DESC
+                      ORDER BY victories DESC, win_ratio DESC
                       LIMIT 10''', (interaction.guild.id,))
     top_10_results = cursor.fetchall()
 
-    # Obtener la posición del usuario en el ranking
+    # Obtener la posicion del usuario en el ranking
     cursor.execute('''SELECT COUNT(*) + 1 AS rank 
                       FROM hanged_stats
                       WHERE server_id = ? AND victories > (SELECT victories FROM hanged_stats WHERE main_id = ?)''',
                    (interaction.guild.id, f"{interaction.guild.id}_{interaction.user.id}"))
     user_rank = cursor.fetchone()[0]
 
-    # Cerrar la conexión a la base de datos
+    # Cerrar la conexion a la base de datos
     conexion.close()
 
     if top_10_results:
         embed = discord.Embed(title="Top 10 Jugadores del Ahorcado\nen este servidor", color=discord.Color.gold())
-        for index, (user_name, victories, games_played) in enumerate(top_10_results, start=1):
-            win_percentage = (victories / games_played) * 100 if games_played > 0 else 0
+        for index, (user_name, victories, games_played, win_ratio) in enumerate(top_10_results, start=1):
+            win_percentage = win_ratio * 100 if games_played > 0 else 0
             embed.add_field(
                 name=f"{index}. {user_name}",
                 value=f"Victorias: {victories}, Partidas: {games_played}, Win Rate: {win_percentage:.2f}%",
                 inline=False
             )
 
-        # Añadir la posición del usuario
+        # Añadir la posicion del usuario
         embed.add_field(
-            name="Tu posición en el ranking:",
+            name="Tu posicion en el ranking:",
             value=f"{user_rank}",
             inline=False
         )
 
         await interaction.response.send_message(embed=embed)
     else:
-        await interaction.response.send_message("Aún no hay jugadores en el ranking de este servidor.")
+        await interaction.response.send_message("Aun no hay jugadores en el ranking de este servidor.")
 
 
 
@@ -161,23 +161,87 @@ async def hanged(interaction: discord.Interaction):
         database_ready = True
 
     hanged_words = [
-        "maravilla", "acantilado", "huracan", "tribuna", "felicidad", "aventura", "sorpresa",
-        "espejo", "misterio", "desierto", "elefante", "murcielago", "relampago", "viento",
-        "estrella", "arcoiris", "jardin", "universo", "sabiduria", "dinero", "amistad",
-        "musica", "corazon", "inteligencia", "computadora", "programacion", "tecnologia",
-        "desafio", "emociones", "creatividad", "inspiracion", "pasion", "viaje", "mariposa",
-        "mariposas", "paz", "luz", "sombra", "naturaleza", "lago", "oceano", "cielo",
-        "tiempo", "mundo", "espejismos", "magia", "sueños", "realidad", "palabra",
-        "puente", "caminos", "destino", "anhelos", "esperanza", "recuerdos", "memorias",
-        "experiencia", "cultura", "tradicion", "familia", "compasion", "solidaridad",
-        "sabores", "olor", "texturas", "colores", "historias", "leyendas", "arte",
-        "dibujos", "pinturas", "escultura", "fotografia", "danza", "teatro", "cine"
+      "acantilado", "amistad", "anhelos", "arcoiris", "arte", "aventura", "almohadilla", "altramuz", "angelical", "arqueologo", 
+      "abierto", "abogado", "abundancia", "abuelita", "acacia", "aceituna", "acero", "admiracion", "adversidad", "aficion", 
+      "agujero", "aguila", "aguijon", "aguacate", "albahaca", "alegria", "alfa", "algodon", "aliado", "almendra", 
+      "alquimia", "altura", "anemona", "animo", "aniversario", "antorcha", "aroma", "articulo", "asombro", "asistente",
+    
+      "barca", "bronquios", "brocoli", "bifurcacion", "burrito", "bruxismo", "boliche", "barracuda", "betun", "bacteriologia",
+      "bailar", "bajo", "baldosa", "banda", "barco", "bazar", "beber", "biografia", "blanco", "brindis",
+      
+      "caminos", "cine", "colores", "compasion", "computadora", "creatividad", "cultura", "ciudadela", "concurrido", "ciencia",
+      "caballo", "cabeza", "cabina", "cactus", "calor", "camara", "caminata", "camiseta", "campana", "canasta", 
+      "cancion", "cangrejo", "canto", "cariño", "carne", "carta", "casita", "castillo", "cereza", "cerveza",
+      "chicle", "chino", "cielo", "ciencia", "circulo", "cobijo", "colorido", "cometa", "compra", "computo",
+    
+      "danza", "desafio", "destino", "desierto", "dibujos", "dinero", "divino", "dentadura", "dolores", "doctorado",
+      "despertar", "destello", "diamente", "dinosaurio", "divertido", "doblaje", "dinastia", "diligencia", "destrozo",
+      
+      "elefante", "emociones", "esperanza", "espejismos", "espejo", "estrella", "escultura", "experiencia", "españa", "exito",
+      "exaltado", "entusiasmo", "elaboracion",
+      
+      "familia", "felicidad", "fotografia", "fuego", "fuerza", "fruta", "futuro", "festival", "flor", "forma", 
+      "ferreteria", "feo", "feroz", "favor", "folio", "fresa", "fiesta", "fracaso", "fuente", "florero",
+      
+      "gato", "guitarra", "globo", "gente", "gigante", "goloso", "gloria", "guapo", "granja", "guerrero",      
+      "galleta", "gimnasio", "goma", "gusto", "guirnalda", "galaxia", "guitarra", "grito", "gorra", "golpe",
+    
+      "historias", "huracan", "hermosa", "horizonte", "hogar", "helado", "heroe", "hongo", "hoja", "hambre", 
+      "humo", "historia", "himno", "huella", "habilidad", "hospital", "hoja", "heroico", "horario", "helio", 
+      
+      "inspiracion", "inteligencia", "isla", "ilusion", "infinito", "idea", "imagen", "iman", "invierno", "iglesia", 
+      "interes", "ingrediente", "intriga", "impacto", "instante", "ignorancia", "ilusion", "indice", "imprenta", "insecto",
+      
+      "jardin", "juego", "joya", "jirafa", "jabon", "jamon", "jaula", "jota", "joven", "justicia", 
+      "jengibre", "jornada", "juguete", "jurado", "jubilo", "jarabe", "jabali", "juramento", "jalapeño", "jolgorio",
+      
+      "koala", "kilometro", "kilogramo", "kilobyte", "kiwi",
+      
+      "lago", "leyendas", "luz", "luna", "libro", "lapiz", "leon", "lente", "lampara", "lengua", 
+      "leche", "lavabo", "lago", "lima", "lucha", "lapiz", "laboratorio", "lago", "lagrima", "largo", 
+      "linea", "local", "libertad", "libreria", "limon", "lider", "loto", "limpieza", "loja", "lienzo", "loro",
+
+      "magia", "maravilla", "mariposa", "maternidad", "memorias", "misterio", "murcielago", "musica", "mundo",
+      "mar", "madera", "mesa", "mundo", "mujer", "magia", "musica", "mama", "misterio", "memoria", 
+      "montaña", "murcielago", "mirada", "mariposa", "motivo", "moneda", "mosaico", "melodia", "movil", "mito", 
+      "manzana", "maestro", "medicina", "mantener", "mascota", "muralla", "miel", "movil", "marcha", "modelo", "movimiento",
+      
+      "naturaleza", "nube", "naranja", "nave", "nido", "negro", "nuevo", "nieve", "nota", "nacido", 
+      "navegar", "narrar", "necesidad", "nicho", "novela", "nombre", "nube", "naranja", "nacional", "nave",
+      
+      "oceano", "olor", "ola", "oro", "orquidea", "olla", "ocaso", "octavo", "ojo", "otono", 
+      "origen", "oracion", "organizacion", "opinion", "oasis", "oscuro", "obvio", "oferta", "omito", "orquesta",
+      
+      "pasion", "paz", "palabra", "pinturas", "programacion", "puente", "piedra", "pluma", "planeta",
+      "pelota", "piano", "pajaros", "prueba", "plato", "perro", "pescado", "puerta", "playa", "pueblo", "polvo",
+      
+      "queso", "quimica", "quijote", "quimera", "quebrada", "quinto", "quijada", "quijote", "quimera", "quimica",
+      "quiosco", "quinto", "quedarse", "quebradizo", "quimicamente",
+      
+      "realidad", "recuerdos", "relampago", "rayo", "risa", "reunion", "reptil", "rojo", "reflejo", "reina",
+      "resiliencia", "regalo", "respeto", "ruido", "romance", "rodar", "rueda", "rincon", "rayo", "remolino",
+      
+      "sabiduria", "sabores", "sombra", "solidaridad", "sorpresa", "sueños", "silencio", "sonido", "sueño", 
+      "salud", "sabana", "sal", "secreto", "sabana", "salto", "sopa", "silla", "sociedad", "sello", "sabor",
+      
+      "teatro", "tecnologia", "texturas", "tiempo", "tribuna", "tradicion", "tierra", "talento", "tesoro", 
+      "tarde", "tambor", "taza", "talento", "tapiz", "tierra", "tigre", "tiza", "titulo", "tipo", 
+      "tabla", "tarta", "telarana", "telefono", "tren", "tranquilo", "traje", "tornillo", "test", "tornado", 
+      "trampa", "trueno", "tenedor", "tarea", "trato", "tristeza", "tunel", "tradicion", "trigo", "teclado", "tablero",
+      
+      "universo", "unicornio", "utopia", "uvas", "usuario", "usurpar", "usualmente", "uncion", "ubicacion", "ultrasonico",
+      
+      "viaje", "viento", "vacaciones", "valor", "vulcano", "vacuna", "victoria", "velocidad", "verificacion", "variabilidad",
+      
+      "xilofono", "xenofobia", "xerografia", "xenon", "xilema",
+      "yate", "yogur", "yunque", "yema", "yoga", "yodada", "yelmo", "yerma", "yuxtaposicion", "yacimiento",
+      "zorro", "zapato", "zafiro", "zumo", "zona", "zen", "zapatear", "zebra"
     ]
 
     word_to_guess = random.choice(hanged_words)
     guessed_letters = []
     wrong_attempts = 0
-    max_attempts = 6
+    max_attempts = max([5, (len(word_to_guess)+1)//2])
     display_word = get_display_word(word_to_guess, guessed_letters)
     attempted_letters = []
 
@@ -234,7 +298,7 @@ async def hanged(interaction: discord.Interaction):
                 await game_message.edit(embed=embed)
 
         except asyncio.TimeoutError:
-            await interaction.channel.send('Se acabó el tiempo. ¡Inténtalo de nuevo!')
+            await interaction.channel.send('Se acabo el tiempo. ¡Intentalo de nuevo!')
             await get_reactions(game_message, situation='incorrect')
             update_stats(interaction.guild.id, interaction.user.id, interaction.user.name, won=False)
             return
@@ -251,43 +315,43 @@ async def hanged(interaction: discord.Interaction):
         update_stats(interaction.guild.id, interaction.user.id, interaction.user.name, won=False)
 
 
-# Método auxiliar para mostrar la palabra
+# Metodo auxiliar para mostrar la palabra
 def get_display_word(word, guessed_letters):
     return " ".join([letter.upper() if letter in guessed_letters else "_" for letter in word])
 
 
-# COMPROBAR SI EL BOT ESTÁ ENCENDIDO
-@bot.tree.command(name='diegoping', description='Comprueba si el bot está listo.')
+# COMPROBAR SI EL BOT ESTa ENCENDIDO
+@bot.tree.command(name='diegoping', description='Comprueba si el bot esta listo.')
 async def ping(interaction: discord.Interaction):
     embed = discord.Embed(
         title="Estado del Bot",
-        description="¡Pong! El bot está en línea. ✅",
+        description="¡Pong! El bot esta en linea. ✅",
         color=discord.Color.green()  # Color verde
     )
     await interaction.response.send_message(embed=embed)
 
 
 # Guess the number game
-@bot.tree.command(name='diegoguess', description='Adivina el número!')
+@bot.tree.command(name='diegoguess', description='Adivina el numero!')
 async def guess(interaction: discord.Interaction, limit: int = 50):
     if ((limit > 1000) or (limit < 10)):
-        await interaction.response.send_message('Introduce un número entre 10 y 1000.')
+        await interaction.response.send_message('Introduce un numero entre 10 y 1000.')
         return
 
     number_to_guess = random.randint(1, limit)
     attempts = max(3, 2 + (limit // 100))
 
-    # Responde inicialmente para cumplir con el requisito de la interacción
+    # Responde inicialmente para cumplir con el requisito de la interaccion
     await interaction.response.defer()
 
     # Crea el embed inicial
     embed = discord.Embed(
-        title="Adivina el Número",
-        description=f"🧠 He pensado un número entre 1 y {limit}. Tienes {attempts} intentos para adivinarlo.\n",
+        title="Adivina el Numero",
+        description=f"🧠 He pensado un numero entre 1 y {limit}. Tienes {attempts} intentos para adivinarlo.\n",
         color=discord.Color.red()  # Color rojo
     )
 
-    # Envía el mensaje inicial usando followup y guarda el objeto del mensaje para ediciones
+    # Envia el mensaje inicial usando followup y guarda el objeto del mensaje para ediciones
     msg = await interaction.followup.send(embed=embed)
 
     def check(m):
@@ -301,7 +365,7 @@ async def guess(interaction: discord.Interaction, limit: int = 50):
             guess_number = int(response.content)
 
             if guess_number == number_to_guess:
-                feedback = f"\n\n🎉 ¡Correcto! El número era `{number_to_guess}`. ¡Felicidades!"
+                feedback = f"\n\n🎉 ¡Correcto! El numero era `{number_to_guess}`. ¡Felicidades!"
                 await get_reactions(response, situation='correct')
                 embed.description += feedback
                 await msg.edit(embed=embed)
@@ -309,27 +373,27 @@ async def guess(interaction: discord.Interaction, limit: int = 50):
                 return
             elif guess_number < number_to_guess:
                 attempts -= 1
-                feedback = f"\n➡️ El número es mayor que `{guess_number}`. Te quedan {attempts} intentos."
+                feedback = f"\n➡️ El numero es mayor que `{guess_number}`. Te quedan {attempts} intentos."
             else:
                 attempts -= 1
-                feedback = f"\n➡️ El número es menor que `{guess_number}`. Te quedan {attempts} intentos."
+                feedback = f"\n➡️ El numero es menor que `{guess_number}`. Te quedan {attempts} intentos."
 
             await response.delete()  # Limpiar el mensaje del usuario
 
-            # Editar el mensaje con la retroalimentación acumulada
+            # Editar el mensaje con la retroalimentacion acumulada
             embed.description += feedback
             await msg.edit(embed=embed)
 
             if attempts == 0:
-                feedback = f"\n\n❌ Se acabaron los intentos. El número era `{number_to_guess}`."
+                feedback = f"\n\n❌ Se acabaron los intentos. El numero era `{number_to_guess}`."
                 embed.description += feedback
                 await msg.edit(embed=embed)
                 await get_reactions(msg, situation='incorrect')
 
         except ValueError:
-            await interaction.channel.send('Por favor, ingresa un número válido.')
+            await interaction.channel.send('Por favor, ingresa un numero valido.')
         except asyncio.TimeoutError:
-            feedback = "\n⏳ Se acabó el tiempo. ¡Inténtalo de nuevo!"
+            feedback = "\n⏳ Se acabo el tiempo. ¡Intentalo de nuevo!"
             embed.description += feedback
             await msg.edit(embed=embed)
             await get_reactions(msg, situation='incorrect')
@@ -347,7 +411,7 @@ async def hunt(interaction: discord.Interaction, emoji: str, user: discord.Membe
 
     hunts[server.id][key] = emoji
     await interaction.response.send_message(
-        f"La caza ha comenzado 😈. \nAhora estaré siguiendo a {prey.mention} con el emoji:\n# {emoji}"
+        f"La caza ha comenzado 😈. \nAhora estare siguiendo a {prey.mention} con el emoji:\n# {emoji}"
     )
 
 @bot.tree.command(name='diegostophunt', description='Detiene la caza activa sobre un usuario')
@@ -363,18 +427,19 @@ async def stop_hunt(interaction: discord.Interaction, user: discord.Member):
         return
 
     if user.guild_permissions.administrator:
-        for server_active_hunts in hunts[server.id].keys():
-            if server_active_hunts[0] == prey.id:
-              del hunts[server.id][server_active_hunts]
-              await interaction.response.send_message(f"Dejaré de perseguir a {prey.mention}.")
-
+        for k in hunts[server.id].keys():
+            if k[0] == prey.id:
+              del hunts[server.id][k]
+              await interaction.response.send_message(f"Dejare de perseguir a {prey.mention}.")
+              return
+              
     # One hunter deletes the hunt over a user in a server
-    if key in hunts[server.id].keys():
-        del hunts[server.id][key]
-        await interaction.response.send_message(f"La caza sobre {user.mention} ha sido detenida en este servidor.")
-    else:
-        await interaction.response.send_message(
-            "No hay ninguna caza activa para este usuario en este servidor o no ha sido iniciada por tí.")
+    else: 
+        if key in hunts[server.id].keys():
+            del hunts[server.id][key]
+            await interaction.response.send_message(f"La caza sobre {user.mention} ha sido detenida en este servidor.")
+        else:
+            await interaction.response.send_message("No hay ninguna caza activa para este usuario en este servidor o no ha sido iniciada por ti.")
 
 
 @bot.tree.command(name='diegoactivehunts', description='Muestra las cazas activas en el servidor')
@@ -394,9 +459,9 @@ async def active_hunts(interaction: discord.Interaction):
 async def diegocommands(interaction: discord.Interaction):
     embed = discord.Embed(title="Comandos Disponibles", color=discord.Color.blue())
 
-    # Agregar cada comando y su descripción al embed
+    # Agregar cada comando y su descripcion al embed
     for command in bot.tree.get_commands():
-        embed.add_field(name=f"/{command.name}", value=command.description or "Sin descripción", inline=False)
+        embed.add_field(name=f"/{command.name}", value=command.description or "Sin descripcion", inline=False)
 
     await interaction.response.send_message(embed=embed)
 
