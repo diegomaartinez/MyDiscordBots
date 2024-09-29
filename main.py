@@ -298,7 +298,7 @@ async def hanged(interaction: discord.Interaction):
                 await game_message.edit(embed=embed)
 
         except asyncio.TimeoutError:
-            await interaction.channel.send('Se acabo el tiempo. ¡Intentalo de nuevo!')
+            await interaction.channel.send('Se acabó el tiempo. ¡Inténtalo de nuevo!')
             await get_reactions(game_message, situation='incorrect')
             update_stats(interaction.guild.id, interaction.user.id, interaction.user.name, won=False)
             return
@@ -321,11 +321,11 @@ def get_display_word(word, guessed_letters):
 
 
 # COMPROBAR SI EL BOT ESTa ENCENDIDO
-@bot.tree.command(name='diegoping', description='Comprueba si el bot esta listo.')
+@bot.tree.command(name='diegoping', description='Comprueba si el bot está listo.')
 async def ping(interaction: discord.Interaction):
     embed = discord.Embed(
         title="Estado del Bot",
-        description="¡Pong! El bot esta en linea. ✅",
+        description="¡Pong! El bot está en linea. ✅",
         color=discord.Color.green()  # Color verde
     )
     await interaction.response.send_message(embed=embed)
@@ -391,9 +391,9 @@ async def guess(interaction: discord.Interaction, limit: int = 50):
                 await get_reactions(msg, situation='incorrect')
 
         except ValueError:
-            await interaction.channel.send('Por favor, ingresa un numero valido.')
+            await interaction.channel.send('Por favor, ingresa un numero válido.')
         except asyncio.TimeoutError:
-            feedback = "\n⏳ Se acabo el tiempo. ¡Intentalo de nuevo!"
+            feedback = "\n⏳ Se acabo el tiempo. ¡Inténtalo de nuevo!"
             embed.description += feedback
             await msg.edit(embed=embed)
             await get_reactions(msg, situation='incorrect')
@@ -411,7 +411,7 @@ async def hunt(interaction: discord.Interaction, emoji: str, user: discord.Membe
 
     hunts[server.id][key] = emoji
     await interaction.response.send_message(
-        f"La caza ha comenzado 😈. \nAhora estare siguiendo a {prey.mention} con el emoji:\n# {emoji}"
+        f"La caza ha comenzado 😈. \nAhora estaré siguiendo a {prey.mention} con el emoji:\n# {emoji}"
     )
 
 @bot.tree.command(name='diegostophunt', description='Detiene la caza activa sobre un usuario')
@@ -430,7 +430,7 @@ async def stop_hunt(interaction: discord.Interaction, user: discord.Member):
         for k in hunts[server.id].keys():
             if k[0] == prey.id:
               del hunts[server.id][k]
-              await interaction.response.send_message(f"Dejare de perseguir a {prey.mention}.")
+              await interaction.response.send_message(f"Dejaré de perseguir a {prey.mention}.")
               return
               
     # One hunter deletes the hunt over a user in a server
