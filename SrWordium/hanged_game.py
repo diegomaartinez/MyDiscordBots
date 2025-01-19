@@ -15,9 +15,9 @@ def load_hanged_words(file_path):
 def select_word(language):
 
     if language == 'es':
-        word_list = load_hanged_words('./ahorcado_palabras.txt')
+        word_list = load_hanged_words('./SrWordium/ahorcado_palabras.txt')
     elif language == 'en':
-        word_list = load_hanged_words('./hanged_words.txt')
+        word_list = load_hanged_words('./SrWordium/hanged_words.txt')
 
     word_to_guess = random.choice(word_list)
 

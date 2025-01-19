@@ -38,7 +38,7 @@ async def on_ready():
     print(f'Conectado como {bot.user}')
 
 # Lee el token del archivo
-with open('./bot_token.txt', 'r') as file:
+with open('./SrWordium/bot_token.txt', 'r') as file:
     token = file.read().strip()
 
 if __name__ == '__main__':
