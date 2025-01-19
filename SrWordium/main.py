@@ -11,7 +11,7 @@ intents.reactions = True
 intents.messages = True
 
 # Crea el bot
-bot = commands.Bot(command_prefix='/', intents=intents)
+bot = commands.Bot(command_prefix='W', intents=intents)
 
 @bot.tree.command(name='ahorcado', description='Jugar al juego del Ahorcado.')
 async def ahorcado_command(interaction: discord.Interaction):

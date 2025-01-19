@@ -88,12 +88,12 @@ async def hanged(bot, interaction: discord.Interaction, language='es'):
                 if guess in guessed_letters or guess in attempted_letters:
                     pass
                 else:
-                    attempted_letters.append(guess)
                     if guess in word_to_guess:
                         guessed_letters.append(guess)
                         display_word = get_display_word(word_to_guess, guessed_letters)
                         embed.description = f"{interaction.user.mention} {texts['progress']}:\n# `{display_word}`"
                     else:
+                        attempted_letters.append(guess)
                         wrong_attempts += 1
 
                 embed.set_field_at(0, name=f"⏳ {texts['tries']}",
