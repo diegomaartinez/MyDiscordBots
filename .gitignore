@@ -1,0 +1,10 @@
+/docs
+/scrape_discord_channels
+/venv
+
+
+# Ignorar archivos con tokens
+*token*
+
+# Bot privado
+backupsbot/
